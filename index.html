@@ -696,6 +696,10 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
   .differential__title{font-size:0.9375rem;line-height:1.25;hyphens:auto;overflow-wrap:break-word;margin-bottom:6px}
   .differential__desc{font-size:0.875rem;line-height:1.45}
   .differential__icon{width:36px;height:36px;margin-bottom:var(--sp-3)}
+  /* último item sozinho ocupa a linha inteira */
+  .differential:nth-child(5){grid-column:1 / -1;padding-right:0;border-right:0}
+  /* menos espaço entre o texto e os diferenciais */
+  .porque__head{margin-bottom:var(--sp-7)}
 }
 .differential__icon{
   width:44px;height:44px;border-radius:12px;
