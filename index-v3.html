@@ -684,8 +684,17 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
   .differential,.differential:nth-child(4),.differential:nth-child(5){grid-column:auto}
 }
 @media (max-width:520px){
-  .differential-grid{grid-template-columns:1fr}
-  .differential,.differential:nth-child(4),.differential:nth-child(5){grid-column:auto}
+  /* 2 colunas com divisórias finas e discretas */
+  .differential-grid{grid-template-columns:1fr 1fr;gap:0}
+  .differential,.differential:nth-child(4),.differential:nth-child(5){grid-column:auto;min-width:0}
+  .differential{padding:var(--sp-6) var(--sp-2)}
+  .differential:nth-child(odd){padding-left:0}
+  .differential:nth-child(even){padding-right:0}
+  .differential:not(:last-child){border-bottom:1px solid rgba(255,255,255,.16)}
+  .differential:nth-child(odd):not(:last-child){border-right:1px solid rgba(255,255,255,.16)}
+  .differential__title{font-size:0.9375rem;line-height:1.25;hyphens:auto;overflow-wrap:break-word;margin-bottom:6px}
+  .differential__desc{font-size:0.875rem;line-height:1.45}
+  .differential__icon{width:36px;height:36px;margin-bottom:var(--sp-3)}
 }
 .differential__icon{
   width:44px;height:44px;border-radius:12px;
