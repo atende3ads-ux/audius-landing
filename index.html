@@ -166,6 +166,7 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
   position:relative;
   aspect-ratio:1920 / 840;
   min-height:600px;
+  width:100%;max-width:100%;   /* trava: impede o aspect-ratio+min-height de derivar largura > viewport */
   border-bottom-left-radius:100px;
   border-bottom-right-radius:100px;
   overflow:hidden;
@@ -721,18 +722,20 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 }
 .prova__sub{font-size:var(--fs-body-lg);color:var(--neutral-600);line-height:1.5;margin:0;max-width:42ch}
 /* Carrossel horizontal com scroll-snap */
-.prova__carousel{
-  overflow-x:auto;overflow-y:hidden;
-  scroll-snap-type:x mandatory;
-  -webkit-overflow-scrolling:touch;
-  scrollbar-width:none;
-}
-.prova__carousel::-webkit-scrollbar{display:none}
+.prova__carousel{overflow:hidden}
+/* Marquee: gira sozinho, contínuo e lento. Track duplicado via JS → loop sem emenda */
 .prova__track{
-  display:flex;gap:var(--sp-5);width:max-content;
-  padding:var(--sp-3) clamp(20px, 8.33vw, 160px) var(--sp-6);
+  display:flex;width:max-content;
+  padding:var(--sp-3) 0 var(--sp-6);
+  animation:marquee 70s linear infinite;
 }
-.prova__track .testimonial{width:min(360px, 82vw);flex-shrink:0;scroll-snap-align:start}
+.prova__carousel:hover .prova__track{animation-play-state:paused}
+.prova__track .testimonial{width:min(360px, 82vw);flex-shrink:0;margin-right:var(--sp-5)}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){
+  .prova__track{animation:none}
+  .prova__carousel{overflow-x:auto}
+}
 
 .testimonial{
   background:var(--bg-elevated);
@@ -1611,6 +1614,20 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
     });
   },{threshold:.12, rootMargin:'0px 0px -8% 0px'});
   document.querySelectorAll('[data-reveal]').forEach(el=>io.observe(el));
+})();
+
+// Carrossel de depoimentos: duplica os cards p/ loop contínuo sem emenda
+(()=>{
+  const track=document.querySelector('.prova__track');
+  if(!track) return;
+  const cards=[...track.children];
+  cards.forEach(c=>c.classList.add('is-in'));           // sempre visíveis (marquee)
+  cards.forEach(c=>{
+    const clone=c.cloneNode(true);
+    clone.classList.add('is-in');
+    clone.setAttribute('aria-hidden','true');
+    track.appendChild(clone);
+  });
 })();
 
 // Menu mobile (hamburger)
