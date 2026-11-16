@@ -1008,9 +1008,9 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 .comuns__grid{
   display:grid;grid-template-columns:repeat(4,1fr);gap:var(--sp-6);
 }
-@media (max-width:900px){.comuns__grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:900px){.comuns__grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
-.comum{display:flex;flex-direction:column}
+.comum{display:flex;flex-direction:column;min-width:0}
 .comum__img{
   border-radius:24px;overflow:hidden;
   aspect-ratio:461 / 430;margin-bottom:var(--sp-5);
@@ -1104,6 +1104,11 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
   .preco{padding-bottom:var(--sp-7)}
   .como{padding-top:var(--sp-7);padding-bottom:var(--sp-7)}
   .porque{padding-top:var(--sp-6);padding-bottom:var(--sp-6)}
+}
+@media (max-width:360px){
+  .aparelho__hero{padding:40px 24px}
+  .aparelho__title{font-size:2rem}
+  .comuns__grid{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -1588,15 +1593,15 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 
     <form class="lead-form__card" id="contatoForm" aria-describedby="formulario-status">
       <h3 class="lead-form__card-title">Deixe seu contato</h3>
-      <p class="lead-form__card-sub">Preencha os campos abaixo para preparar sua solicitação. Todos são obrigatórios.</p>
+      <p class="lead-form__card-sub">Preencha seus dados para entrarmos em contato. Apenas nome e telefone são obrigatórios.</p>
       <div class="lead-form__fields">
         <div class="lead-form__field">
           <label class="lead-form__label" for="contato-nome">Nome completo</label>
           <input class="lead-form__input" id="contato-nome" name="nome" type="text" autocomplete="name" placeholder="Seu nome" required />
         </div>
         <div class="lead-form__field">
-          <label class="lead-form__label" for="contato-instagram">Instagram</label>
-          <input class="lead-form__input" id="contato-instagram" name="instagram" type="text" autocomplete="off" placeholder="@seuusuario" pattern="@?[A-Za-z0-9._]{1,30}" title="Digite apenas o nome de usuário, com ou sem @." required />
+          <label class="lead-form__label" for="contato-email">E-mail (opcional)</label>
+          <input class="lead-form__input" id="contato-email" name="email" type="email" autocomplete="email" placeholder="seuemail@exemplo.com" />
         </div>
         <div class="lead-form__field">
           <label class="lead-form__label" for="contato-telefone">Telefone / WhatsApp</label>
@@ -1607,13 +1612,13 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
         <fieldset class="lead-form__fieldset">
           <legend class="lead-form__legend">Você já usa aparelho?</legend>
           <div class="lead-form__choices">
-            <label class="lead-form__choice"><input type="radio" name="usa_aparelho" value="sim" required /> Sim</label>
-            <label class="lead-form__choice"><input type="radio" name="usa_aparelho" value="nao" required /> Não</label>
+            <label class="lead-form__choice"><input type="radio" name="usa_aparelho" value="sim" /> Sim</label>
+            <label class="lead-form__choice"><input type="radio" name="usa_aparelho" value="nao" /> Não</label>
           </div>
         </fieldset>
       </div>
-      <button class="btn btn--primary lead-form__submit" type="button" disabled>Envio em configuração</button>
-      <p class="lead-form__state" id="formulario-status" role="status">Prévia do formulário: o envio será habilitado após a definição do canal de atendimento.</p>
+      <button class="btn btn--primary lead-form__submit" type="submit">Enviar contato</button>
+      <p class="lead-form__state" id="formulario-status" role="status" aria-live="polite"></p>
     </form>
   </div>
 </section>
@@ -1688,14 +1693,16 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 </footer>
 
 <script>
-// A página ainda não possui destino de envio; impede submissão implícita pelo teclado.
-document.getElementById('contatoForm')?.addEventListener('submit',(event)=>event.preventDefault());
-
 // Máscara e validação de formato para números brasileiros com DDD.
 (()=>{
+  const form=document.getElementById('contatoForm');
+  const name=document.getElementById('contato-nome');
+  const email=document.getElementById('contato-email');
   const input=document.getElementById('contato-telefone');
   const error=document.getElementById('contato-telefone-erro');
-  if(!input||!error) return;
+  const status=document.getElementById('formulario-status');
+  const submit=form?.querySelector('[type="submit"]');
+  if(!form||!name||!email||!input||!error||!status||!submit) return;
   const ddds=new Set(('11 12 13 14 15 16 17 18 19 21 22 24 27 28 31 32 33 34 35 37 38 41 42 43 44 45 46 47 48 49 51 53 54 55 61 62 63 64 65 66 67 68 69 71 73 74 75 77 79 81 82 83 84 85 86 87 88 89 91 92 93 94 95 96 97 98 99').split(' '));
   const digits=()=>input.value.replace(/\D/g,'');
   const format=(value)=>{
@@ -1713,7 +1720,7 @@ document.getElementById('contatoForm')?.addEventListener('submit',(event)=>event
     if(!number) return 'Informe seu telefone com DDD.';
     if(!ddds.has(number.slice(0,2))) return 'Informe um DDD brasileiro válido.';
     const local=number.slice(2);
-    if(number.length===11&&local.startsWith('9')&&!/^(\d)\1+$/.test(local)) return '';
+    if(number.length===11&&local.startsWith('9')&&!/^(\d)\1{7}$/.test(local.slice(1))) return '';
     if(number.length===10&&/^[2-5]/.test(local)&&!/^(\d)\1+$/.test(local)) return '';
     return 'Informe um celular ou telefone fixo válido com DDD.';
   };
@@ -1729,6 +1736,42 @@ document.getElementById('contatoForm')?.addEventListener('submit',(event)=>event
   input.addEventListener('change',()=>{input.value=format(input.value);update()});
   input.addEventListener('blur',()=>{input.dataset.touched='true';update()});
   update();
+
+  form.addEventListener('submit',async(event)=>{
+    event.preventDefault();
+    if(submit.disabled) return;
+    name.value=name.value.trim();
+    input.dataset.touched='true';
+    update();
+    if(!form.reportValidity()) return;
+
+    const controller=new AbortController();
+    const timeout=setTimeout(()=>controller.abort(),20000);
+    submit.disabled=true;
+    status.textContent='Enviando seus dados…';
+    try{
+      const response=await fetch('https://hook.us2.make.com/d8cdi1m6j5jvmsc62qmu88apmsi7970q',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          nome:name.value,
+          email:email.value.trim(),
+          telefone:input.value,
+          usa_aparelho:form.querySelector('input[name="usa_aparelho"]:checked')?.value||''
+        }),
+        signal:controller.signal
+      });
+      if(!response.ok) throw new Error('Falha no envio');
+      window.location.assign(new URL('./obrigado.html',document.baseURI).href);
+    }catch(error){
+      status.textContent=error.name==='AbortError'
+        ?'O envio demorou mais que o esperado. Tente novamente.'
+        :'Não foi possível enviar agora. Confira sua conexão e tente novamente.';
+      submit.disabled=false;
+    }finally{
+      clearTimeout(timeout);
+    }
+  });
 })();
 
 // Header sombra ao rolar
